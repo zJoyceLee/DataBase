@@ -1,6 +1,6 @@
-/* >> mysql -u root -p school < ./test.sql */
+/* >> mysql -u root -p < ./school.sql */
 
-DROP DATABASE school;
+DROP DATABASE IF EXISTS school;
 CREATE DATABASE school CHARACTER SET 'utf8' COLLATE 'utf8_general_ci';
 USE school;
 
@@ -27,10 +27,10 @@ CREATE TABLE Students (
 CREATE TABLE Teachers (
 	id CHAR(4) NOT NULL,
 	name CHAR(255) NOT NULL,
-	gender CHAR(4) NOT NULL  CHECK (gender in ("男","女")),
+	gender CHAR(4) NOT NULL /* CHECK (gender in ("男","女"))*/,
 	birthday DATE,
 	title CHAR(30),
-	salary FLOAT(2) CHECK (sarary >= 2500.00),
+	salary FLOAT(2) /*CHECK (sarary >= 2500.00)*/,
 	college_id CHAR(2),
 	PRIMARY KEY(id),
 	FOREIGN KEY(college_id) REFERENCES Colleges(id)
@@ -82,8 +82,8 @@ CREATE INDEX index02 ON Courses (
 INSERT INTO Colleges(id, name, address, telephone) VALUES
 ("01", "计算机学院", "上大东区三号楼", "65347567"),
 ("02", "通讯学院", "上大东区二号楼", "65341234"),
-("03", "材料学院", "上大东区四号楼", "65347890"),
-("54", "空", "空", "12345678");
+("03", "材料学院", "上大东区四号楼", "65347890")/*,
+("04", "空", "空", "12345678")*/;
 
 INSERT INTO Students(id, name, gender, birthday, birthplace, cellphone, college_id) VALUES
 ("1101", "李明", "男", "1993-03-06", "上海", "13613005486", "02"),
@@ -91,13 +91,13 @@ INSERT INTO Students(id, name, gender, birthday, birthplace, cellphone, college_
 ("1103", "张颖", "女", "1993-01-05", "江苏", "18826490423", "01"),
 ("1104", "刘晶晶", "女", "1994-11-06", "上海", "13331934111", "01"),
 ("1105", "刘成刚", "男", "1991-06-07", "上海", "18015872567", "01"),
-("1106", "李二麗", "女", "1993-05-04", "江苏", "18107620945", "01"),
-("1107", "张晓峰", "男", "1992-08-16", "浙江", "13912341078", "01"),
-("1108", "李羽哲", "女", "1995-03-09", "吉林", "18717897080"," 04");
+("1106", "李二丽", "女", "1993-05-04", "江苏", "18107620945", "01"),
+("1107", "张晓峰", "男", "1992-08-16", "浙江", "13912341078", "01")/*,
+("1108", "李羽哲", "女", "1995-03-09", "吉林", "12317897890"," 04")*/;
 
 INSERT INTO Teachers(id, name, gender, birthday, title, salary, college_id) VALUES
 ("0101", "陈迪茂", "男", "1973-03-06", "副教授", 3567.00, "01"),
-("0102", "马小紅", "女", "1972-12-08", "讲师", 2845.00, "01"),
+("0102", "马小红", "女", "1972-12-08", "讲师", 2845.00, "01"),
 ("0201", "张心颖", "女", "1960-01-05", "教授", 4200.00, "02"),
 ("0103", "吴宝刚", "男", "1980-11-06", "讲师", 2554.00, "01");
 
