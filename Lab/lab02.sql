@@ -36,7 +36,7 @@ WHERE
     Students.gender = "男" AND
     Colleges.name = "计算机学院" AND
     CourseSelection.overall_score >= 60
-    ORDER BY
+ORDER BY
     Teachers.id ASC,
     Courses.id DESC;
 SYSTEM echo;
