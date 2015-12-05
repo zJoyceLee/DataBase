@@ -18,10 +18,12 @@ SYSTEM echo;
 
 SYSTEM echo "4. 查询计算机学院男生总评成绩及格的课程号、课名、开课教师姓名,";
 SYSTEM echo "按开课教师升序,课程号降序排序。";
-SELECT /*DISTINCT*/
+SELECT DISTINCT
+    Teachers.id as id,
     Courses.id as Courses_id,
     Courses.name as Courses_name,
     Teachers.name as Teachers_name
+
 FROM
     CourseSelection,
     Teachers,
@@ -38,7 +40,9 @@ WHERE
     CourseSelection.overall_score >= 60
 ORDER BY
     Teachers.id ASC,
-    Courses.id DESC;
+    Courses.id DESC,
+    Courses.name,
+    Teachers.name;
 SYSTEM echo;
 
 SYSTEM echo "5. 检索学号比张颖同学大,年龄比张颖同学小的同学学号、姓名";
