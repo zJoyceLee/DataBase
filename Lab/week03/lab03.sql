@@ -47,7 +47,7 @@ GROUP BY
     /*course_name,
     Teachers.name;*/
 SYSTEM echo "";
-
+/*
 SYSTEM echo "Add a student who has taken part in all courses. ";
 INSERT INTO Students(id, name, gender, birthday, birthplace, cellphone, college_id) VALUES
 ("1108", "李羽", "女", "1995-03-09", "上海", "12317897890", "01");
@@ -55,14 +55,14 @@ INSERT INTO Students(id, name, gender, birthday, birthplace, cellphone, college_
 INSERT INTO OpenCourses(semester, course_id, teacher_id, time) VALUES
 ("2013-2014秋季", "08301001", "0101", "星期一5-8");
 
-INSERT INTO CourseSelection(student_id, semester, course_id, teacher_id, usual_time_score, exam_score, overall_sore) VALUES
-("1108",  "2012-2013秋季", "08305001", "0103", null, null, null),
-("1108",  "2012-2013冬季", "08305002", "0101", null, null, null),
-("1108",  "2012-2013冬季", "08305003", "0102", null, null, null),
-("1108",  "2013-2014秋季", "08305004", "0101", null, null, null),
-("1108",  "2013-2014冬季", "08302001", "0101", null, null, null),
-("1108",  "2013-2014秋季", "08301001", "0101", null, null, null);
-
+INSERT INTO CourseSelection(student_id, semester, course_id, teacher_id, usual_time_score, exam_score, overall_score) VALUES
+("1108",  "2012-2013秋季", "08305001", "0103", 60, 60, 60),
+("1108",  "2012-2013冬季", "08305002", "0101", 60, 60, 60),
+("1108",  "2012-2013冬季", "08305003", "0102", 60, 60, 60),
+("1108",  "2013-2014秋季", "08305004", "0101", 60, 60, 60),
+("1108",  "2013-2014冬季", "08302001", "0101", 60, 60, 60),
+("1108",  "2013-2014秋季", "08301001", "0101", 60, 60, 60);
+*/
 SYSTEM echo "3. 检索所有课程都选修的的学生的学号与姓名: "
 SELECT Students.id, Students.name
 FROM Students
@@ -74,8 +74,18 @@ WHERE NOT EXISTS (
 SYSTEM echo "";
 
 SYSTEM echo "4. 检索选修课程包含1106同学所学全部课程的学生学号和姓名。";
-SELECT
+SELECT DISTINCT
     Students.id,
     Students.name
-FROM Students
+FROM
+    Students
 WHERE
+    NOT EXISTS (
+        SELECT * FROM CourseSelection AS CS1 WHERE
+            CS1.student_id = '1106' AND
+            NOT EXISTS (
+                SELECT * FROM CourseSelection AS CS2 WHERE (
+                    CS2.student_id != '1106' AND
+                    CS2.student_id = Students.id AND
+                    CS2.course_id = CS1.course_id)));
+SYSTEM echo "";
