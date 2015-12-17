@@ -121,12 +121,13 @@ SYSTEM echo "(2)设计一个能更新的视图，要求更新后的数据满足�
 SYSTEM echo "“系统结构”还未有总评成绩的选课视图。";
 SYSTEM echo "写出如下对视图的更新命令，并判断是否可行，如不可行请说出理由";
 
+CREATE TABLE CS_tmp SELECT * FROM CourseSelection;
 CREATE VIEW SystemStructureNotEvaluate(s_id, semester, course_id, t_id, u_score, e_score, o_score) AS (
     SELECT
         student_id, semester, course_id, teacher_id,
         usual_time_score, exam_score, overall_score
-    FROM CourseSelection
-    WHERE CourseSelection.course_id IN (
+    FROM CS_tmp
+    WHERE CS_tmp.course_id IN (
         SELECT id FROM Courses WHERE Courses.name = "系统结构"));
 SELECT * FROM SystemStructureNotEvaluate;
 
@@ -146,11 +147,13 @@ INSERT INTO SystemStructureNotEvaluate(s_id, semester, course_id, t_id, u_score,
 SYSTEM echo "After Insert: ";
 SELECT * FROM SystemStructureNotEvaluate;
 */
-SYSTEM echo "error::ERROR 1062 (23000) at line 144: Duplicate entry '1107-2012-2013冬季-08305002' for key 'PRIMARY'."
+SYSTEM echo "error::08305002."
 
 SYSTEM echo "将所有学生平时成绩增加10分,但不能超过100分";
 UPDATE SystemStructureNotEvaluate SET u_score = u_score + 10 WHERE u_score <= 90;
+UPDATE SystemStructureNotEvaluate SET u_score = 100 WHERE u_score > 90;
 UPDATE SystemStructureNotEvaluate SET u_score = 10 WHERE u_score IS NULL;
 SYSTEM echo "After update: "
 SELECT * FROM SystemStructureNotEvaluate;
 DROP VIEW SystemStructureNotEvaluate;
+DROP TABLE CS_tmp;
