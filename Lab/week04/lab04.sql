@@ -81,32 +81,51 @@ CREATE TEMPORARY TABLE Students_tmp SELECT * FROM Students;
 CREATE TEMPORARY TABLE Teachers_tmp SELECT * FROM Teachers;
 CREATE TEMPORARY TABLE Colleges_tmp SELECT * FROM Colleges;
 
+SYSTEM echo "Courses_tmp: ";
+SELECT * FROM Courses_tmp;
+
 DELETE FROM Courses_tmp
 WHERE Courses_tmp.college_id IN (
     SELECT Courses.college_id FROM Courses WHERE Courses.id NOT IN (
         SELECT OpenCourses.course_id FROM OpenCourses));
-SYSTEM echo "Courses_tmp: ";
+
+SYSTEM echo "Courses_tmp After Delete: ";
 SELECT * FROM Courses_tmp;
+
+
+SYSTEM echo "Students_tmp: ";
+SELECT * FROM Students_tmp;
 
 DELETE FROM Students_tmp
 WHERE Students_tmp.college_id IN (
     SELECT Courses.college_id FROM Courses WHERE Courses.id NOT IN (
         SELECT OpenCourses.course_id FROM OpenCourses));
-SYSTEM echo "Students_tmp: ";
+
+SYSTEM echo "Students_tmp After Delete: ";
 SELECT * FROM Students_tmp;
+
+
+SYSTEM echo "Teachers_tmp";
+SELECT * FROM Teachers_tmp;
 
 DELETE FROM Teachers_tmp
 WHERE Teachers_tmp.college_id IN (
     SELECT Courses.college_id FROM Courses WHERE Courses.id NOT IN (
         SELECT OpenCourses.course_id FROM OpenCourses));
-SYSTEM echo "Teachers_tmp: ";
+
+SYSTEM echo "Teachers_tmp After Delete: ";
 SELECT * FROM Teachers_tmp;
+
+
+SYSTEM echo "Colleges_tmp: ";
+SELECT * FROM Colleges_tmp;
 
 DELETE FROM Colleges_tmp
 WHERE Colleges_tmp.id IN (
     SELECT Courses.college_id FROM Courses WHERE Courses.id NOT IN (
         SELECT OpenCourses.course_id FROM OpenCourses));
-SYSTEM echo "Colleges_tmp: "
+
+SYSTEM echo "Colleges_tmp After Delete: "
 SELECT * FROM Colleges_tmp;
 
 DROP TABLE Teachers_tmp;
