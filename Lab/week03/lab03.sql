@@ -122,3 +122,75 @@ WHERE
         SELECT MAX(overall_score)
         FROM CourseSelection
         GROUP BY CourseSelection.course_id);
+
+SYSTEM echo "";
+
+SYSTEM echo "6.查询年龄小于本学院平均年龄，所有课程总评成绩";
+SYSTEM echo "都高于所选课程平均总评成绩的学生学号、姓名和平";
+SYSTEM echo "均总评成绩，按年龄排序: ";
+/*
+SELECT CourseSelection.student_id, Students.name, AVG(overall_score) as AvgScore
+FROM CourseSelection, Students
+WHERE
+    CourseSelection.student_id = Students.id, Student AND
+    (YEAR(CURDATE()) - YEAR(Students.birthday)) < (
+        SELECT AVG(YEAR(CURDATE())-YEAR(Students.birthday))
+        FROM Students, Colleges
+        WHERE
+            Students.college_id = Colleges.id
+        GROUP BY Students.birthday)
+GROUP BY
+    CourseSelection.student_id,
+    Students.name;
+
+SELECT id, name, YEAR(CURDATE()) - YEAR(Students.birthday) as age, college_id FROM Students
+WHERE (YEAR(CURDATE())-YEAR(Students.birthday)) < AVG(YEAR(CURDATE())-YEAR(Students.birthday))
+GROUP BY Students.birthday;
+*/
+
+SELECT DISTINCT
+    Students.id as S_id,
+    Students.name,
+    AVG(CourseSelection.overall_score) AS "AVG Overall Score"
+FROM
+    Students,
+    CourseSelection,
+    (
+        SELECT
+            CourseSelection.course_id,
+            AVG(CourseSelection.overall_score) AS avg_score
+        FROM
+            CourseSelection
+        GROUP BY
+            CourseSelection.course_id
+        ) AS AVGScoreTable,
+    (
+       SELECT
+           Students.id,
+           YEAR(CURDATE()) - YEAR(Students.birthday) AS age,
+           Students.college_id
+       FROM
+           Students
+    ) AS AgeTable,
+    (
+         SELECT
+             Students.college_id,
+             AVG(YEAR(CURDATE()) - YEAR(Students.birthday)) AS avg_age
+         FROM
+             Students
+         GROUP BY
+             Students.college_id
+     ) AS AVGAgeTable
+WHERE
+    Students.id = CourseSelection.student_id AND
+    Students.id = AgeTable.id AND
+    Students.college_id = AgeTable.college_id AND
+    CourseSelection.course_id = AVGScoreTable.course_id AND
+    CourseSelection.overall_score > AVGScoreTable.avg_score AND
+    AgeTable.age < AVGAgeTable.avg_age
+GROUP BY
+    Students.id
+ORDER BY
+    AgeTable.age ASC;
+
+SYSTEM echo "";
