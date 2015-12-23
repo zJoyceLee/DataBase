@@ -27,10 +27,10 @@ void ChargeDNO(){
     scanf("%c", &yn);
     if(yn == 'y' or yn == 'Y') {
       printf("INPUT NEW College_id: ");
+      scanf("%c", &newcollege_id);
       //--Update College_id------------------------
       EXEC SQL UPDATE Students SET college_id = :newcollege_id WHERE CURRENT OF myCursor;
       //----------------------------------------------------
-      scanf("%c", &newcollege_id);
       EXEC SQL FETCH FROM myCursor INTO :id, :name, :gender, :college_id;
     }
   }

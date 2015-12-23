@@ -32,6 +32,13 @@ WHERE EXISTS (SELECT * FROM Teachers WHERE OpenCourses.teacher_id = Teachers.id 
 SYSTEM echo;
 
 
+SYSTEM echo "(6) Exists: "
+SELECT DISTINCT SUBSTRING(semester, 1, 10) as "School Year", SUBSTRING(semester, 10, 2) as "Semester", course_id, time
+FROM OpenCourses
+WHERE EXISTS (SELECT * FROM Teachers WHERE name = "马小红");
+SYSTEM echo;
+
+
 SYSTEM echo "2. 检索有学生重修的教师编号和姓名: "
 SYSTEM echo "(1) 嵌套: "
 SELECT DISTINCT id, name

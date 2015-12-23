@@ -128,7 +128,7 @@ CREATE VIEW SystemStructureNotEvaluate(s_id, semester, course_id, t_id, u_score,
         usual_time_score, exam_score, overall_score
     FROM CS_tmp
     WHERE CS_tmp.course_id IN (
-        SELECT id FROM Courses WHERE Courses.name = "系统结构"));
+        SELECT id FROM Courses WHERE Courses.name = "系统结构")) WITH CHECK OPTION;
 SELECT * FROM SystemStructureNotEvaluate;
 
 SYSTEM echo "插入数据(1107, 2013-2014秋季, 08305004, 0101, null，null，null)";
@@ -147,7 +147,7 @@ INSERT INTO SystemStructureNotEvaluate(s_id, semester, course_id, t_id, u_score,
 SYSTEM echo "After Insert: ";
 SELECT * FROM SystemStructureNotEvaluate;
 */
-SYSTEM echo "error::08305002."
+SYSTEM echo "error::ERROR 1369 (HY000) at line 145: CHECK OPTION failed 'school.SystemStructureNotEvaluate'"
 
 SYSTEM echo "将所有学生平时成绩增加10分,但不能超过100分";
 UPDATE SystemStructureNotEvaluate SET u_score = u_score + 10 WHERE u_score <= 90;
