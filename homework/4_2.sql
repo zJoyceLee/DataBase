@@ -40,3 +40,9 @@ SYSTEM echo "8. 检索选修课程包含LIU老师所授课的学生学号: ";
 SELECT SC.sno FROM SC WHERE SC.cno IN (
     SELECT C.cno FROM C WHERE C.tname = "liu");
 SYSTEM echo "";
+
+SYSTEM echo "8. 检索选修课程包含LIU老师所授all课的学生学号: ";
+SELECT DISTINCT SC.sno FROM SC as X WHERE NOT EXISTS(
+    SELECT * FROM C WHERE C.tname = "liu" AND NOT EXISTS(
+        SELECT * FROM SC as Y WHERE sno = X.sno AND cno = C.cno));
+SYSTEM echo "";

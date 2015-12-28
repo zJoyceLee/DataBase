@@ -13,6 +13,12 @@ CREATE TABLE S (
     PRIMARY KEY(sno)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
+CREATE TABLE Students (
+    sno CHAR(2) NOT NULL,
+    sname CHAR(8) NOT NULL,
+    sex CHAR(2)
+) ENGiNE = InnoDB DEFAULT CHARSET = utf8;
+
 CREATE TABLE C (
     cno CHAR(2) NOT NULL,
     cname CHAR(10) NOT NULL,
@@ -62,7 +68,7 @@ INSERT INTO SC(sno, cno, grade) VALUES
 ("S8", "C2", 78),
 ("S1", "C5", 90),
 ("S2", "C5", NULL),
-("S8", "C3", 60),
-("S2", "C3", 60),
-("S9", "C3", 60),
-("S5", "C3", NULL);
+("S8", "C3", 30),
+("S2", "C3", 56),
+("S9", "C3", NULL),
+("S5", "C3", 90);

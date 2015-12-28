@@ -56,6 +56,25 @@ HAVING COUNT(cno) > (SELECT COUNT(cno) FROM SC WHERE sno = "S4");
 SYSTEM echo "";
 
 
+SYSTEM echo "3. SELECT sno, avg_grade FROM S_GRADE";
+SYSTEM echo "    WHERE c_num > (SELECT c_num ";
+SYSTEM echo "        FROM S_GRADE WHERE sno = 'S4')";
+SYSTEM echo "Yes: ";
+SYSTEM echo "with Group by: "
+
+SYSTEM echo "View Result: ";
+SELECT sno, avg_grade FROM S_GRADE
+WHERE
+    c_num > (SELECT c_num FROM S_GRADE WHERE sno = "S4");
+
+SYSTEM echo "Table Result: ";
+SELECT sno, AVG(grade) FROM SC
+GROUP BY sno
+HAVING COUNT(cno) > (SELECT COUNT(cno) FROM SC GROUP BY sno HAVING sno = "S4");
+SYSTEM echo "";
+
+
+
 SYSTEM echo "4.UPDATE S_GRADE SET c_num = c_num + 1";
 SYSTEM echo "No.";
 SYSTEM echo "";
