@@ -151,3 +151,6 @@ update()
 findIncomeOver1000()
 delete()
 findIncomeOver1000()
+
+# C-x r t
+# C-x r k
