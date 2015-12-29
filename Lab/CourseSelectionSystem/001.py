@@ -1,4 +1,8 @@
+# SQL
 import MySQLdb
+# bar chart
+import numpy as np
+import matplotlib.pyplot as plt
 
 # print Table
 def printResult(cursor, sql):
@@ -171,7 +175,45 @@ def teacherSuccessfulLogin(userName):
 
     # print grade distribution
     def gradeDistribution():
-        pass
+        ss = "SELECT DISTINCT cno, AVG(grade) FROM SC GROUP BY cno;"
+        cursor.execute(ss)
+        results = cursor.fetchall()
+        n = len(results)
+
+        # className : grade
+        d = {}
+        for row in results:
+            # add className: grade into dict d
+            d[row[0]] = float(row[1])
+#        print(d)
+#        {'C8': 88.0, 'C3': 79.0, 'C2': 71.5, 'C1': 80.0, 'C6': 66.0, 'C4': 78.0}
+        gradeMeans = tuple(d.values())
+        ind = np.arange(n)
+        width =  0.35
+        fig, ax = plt.subplots()
+        rects = ax.bar(ind, gradeMeans, width, color = 'y')
+        ax.set_ylabel('Scores')
+        ax.set_title('Grade Distribution')
+        ax.set_xticks(ind + width)
+        cname = []
+        for i in range(0,len(d.keys())):
+            ss = "SELECT cname FROM C WHERE cno = '%s';" % d.keys()[i]
+            cursor.execute(ss)
+            result = cursor.fetchone()
+            cname.append(result[0])
+        cname = tuple(cname)
+        ax.set_xticklabels(cname)
+
+#         ax.legend(rects[0], 'Class')
+        def autolabel(rects):
+            # attach some text labels
+            for rect in rects:
+                height  = rect.get_height()
+                ax.text(rect.get_x() + rect.get_width() / 2., 1.05 * height,
+                        '%d' % int(height), ha = 'center', va = 'bottom')
+
+        autolabel(rects)
+        plt.show()
 
 
 
@@ -183,6 +225,7 @@ def teacherSuccessfulLogin(userName):
         cname = raw_input("Cname: ")
         theSnoAndGrade(userName, cname)
         alterGrade(cname)
+        gradeDistribution()
 
 
 
