@@ -6,21 +6,21 @@ USE mySchool;
 
 CREATE TABLE S(
     sno CHAR(4),
-    sname CHAR(8),
+    sname CHAR(20),
     sex CHAR(2),
     age CHAR(2),
-    sdept CHAR(10),
+    sdept CHAR(20),
     logn CHAR(20),
     pswd CHAR(20),
     PRIMARY KEY(sno)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;;
 
 CREATE TABLE C(
     cno CHAR(4),
     cname CHAR(20),
     credit INTEGER,
-    cdept CHAR(10),
-    tname CHAR(8),
+    cdept CHAR(20),
+    tname CHAR(20),
     PRIMARY KEY(cno)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
@@ -33,26 +33,38 @@ CREATE TABLE SC(
     FOREIGN KEY(cno) REFERENCES C(cno)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
+CREATE TABLE Selected(
+    sno CHAR(4),
+    cno CHAR(4),
+    cname CHAR(20),
+    credit INTEGER,
+    cdept CHAR(20),
+    tname CHAR(20),
+    PRIMARY KEY(sno, cno),
+    FOREIGN KEY(sno) REFERENCES S(sno),
+    FOREIGN KEY(cno) REFERENCES C(cno)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
 INSERT INTO S(sno, sname, sex, age, sdept, logn, pswd) VALUES
-("S1", "李铭", "男", "19", "计算机软件", "S1", "001"),
-("S2", "刘晓鸣", "男", "20", "计算机应用", "S2", "002"),
-("S3", "李明", "男", "22", "计算机应用", "S3", "003"),
-("S4", "张鹰", "女", "21", "计算机软件", "S4", "004"),
-("S5", "刘竟静", "女", "22", "计算机软件", "S5", "005"),
-("S6", "刘成刚", "男", "21", "计算机软件", "S6", "006"),
-("S7", "王铭", "男", "22", "计算机应用", "S7", "007"),
-("S8", "宣明尼", "女", "18", "计算机应用", "S8", "008"),
-("S9", "柳红利", "女", "19", "计算机软件", "S9", "009");
+("S1", "LiMing", "M", "19", "Computer Software", "S1", "001"),
+("S2", "LiuXiaoming", "M", "20", "Computer Application", "S2", "002"),
+("S3", "LiMing", "M", "22", "Computer Application", "S3", "003"),
+("S4", "ZhangYing", "F", "21", "Computer Software", "S4", "004"),
+("S5", "LiuJingjing", "F", "22", "Computer Software", "S5", "005"),
+("S6", "LiuChenggang", "M", "21", "Computer Software", "S6", "006"),
+("S7", "WangMing", "M", "22", "Computer Application", "S7", "007"),
+("S8", "XuanMingni", "F", "18", "Computer Application", "S8", "008"),
+("S9", "LiuHongli", "F", "19", "Computer Software", "S9", "009");
 
 INSERT INTO C(cno, cname, credit, cdept, tname) VALUES
-("C1",  "PASCAL", 4, "计算机应用", "王晓名"),
-("C2",  "数据结构", 4, "计算机应用", "刘红"),
-("C3",  "离散数学", 4, "计算机应用", "李严劲"),
-("C4",  "计算机原理", 6, "计算机软件", "王晓名"),
-("C5",  "数据库原理", 4, "计算机应用", "吴志钢"),
-("C6",  "Windows技术", 4, "计算机软件", "吴志钢"),
-("C8",  "编译原理", 4, "计算机软件", "蒋莹岳"),
-("C9",  "系统结构", 6, "计算机应用", "刘红");
+("C1",  "PASCAL", 4, "Computer Application", "WangXiaoming"),
+("C2",  "Data Structure", 4, "Computer Application", "LiuHong"),
+("C3",  "Discrete Mathematics", 4, "Computer Application", "LiJinyan"),
+("C4",  "Computer Principle", 6, "Computer Software", "WangXiaoming"),
+("C5",  "Database Principle", 4, "Computer Application", "WuZhigang"),
+("C6",  "Windows Technologies", 4, "Computer Software", "WuZhigang"),
+("C8",  "Compile Principle", 4, "Computer Software", "JiangYingyue"),
+("C9",  "System Structure", 6, "Computer Application", "LiuHong");
 
 INSERT INTO SC(sno, cno, grade) VALUES
 ("S1", "C2", 56),
