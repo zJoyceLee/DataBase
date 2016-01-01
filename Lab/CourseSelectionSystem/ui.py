@@ -29,7 +29,6 @@ class StudentInfoWindow(Gtk.Window):
         self.grid.set_row_homogeneous(True)
         self.add(self.grid)
 
-
         self.stu_list = []
         ss = "SELECT * FROM S;"
         cursor.execute(ss)
@@ -38,24 +37,23 @@ class StudentInfoWindow(Gtk.Window):
             mytuple = (row[0], row[1], row[2], int(row[3]), row[4], row[5], row[5])
             self.stu_list.append(mytuple)
 
-        counter_record_label = Gtk.Label("Record counter: %s" % len(self.stu_list))
-        self.grid.add(counter_record_label)
+        self.counter_record_label = Gtk.Label("Record counter: %d" % len(self.stu_list))
+        self.grid.add(self.counter_record_label)
 
         self.stu_info_liststore = Gtk.ListStore(str, str, str, int, str, str, str)
         for ref in self.stu_list:
             self.stu_info_liststore.append(list(ref))
-#        self.current_filter_stu = None
         self.stu_filter = self.stu_info_liststore.filter_new()
-#        self.stu_filtetr.set_visible_func(self.stu_filter_func)
         self.treeview = Gtk.TreeView.new_with_model(self.stu_filter)
-        for i, column_title in enumerate(
-                ["id", "name","gender", "age", "college", "user", "passwd"]):
+        self.title_list = ["id", "name","gender", "age", "college", "user", "pswd"]
+        for i, column_title in enumerate(self.title_list):
             renderer = Gtk.CellRendererText()
             column= Gtk.TreeViewColumn(column_title, renderer, text = i)
             self.treeview.append_column(column)
+
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 1, 4, 8)
+        self.grid.attach(self.scrollable_treelist, 0, 1, 3, 8)
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
 
@@ -67,22 +65,95 @@ class StudentInfoWindow(Gtk.Window):
         del_button.connect("clicked", self.on_del_clicked)
         close_button = Gtk.Button("Close")
         close_button.connect("clicked", self.on_close_clicked)
-        self.grid.attach(add_button, 4, 1, 1, 1)
-        self.grid.attach(save_button, 4, 2, 1, 1)
-        self.grid.attach(del_button, 4, 3, 1, 1)
-        self.grid.attach(close_button, 4, 4, 1, 1)
+        self.grid.attach(add_button, 0, 9, 1, 1)
+        self.grid.attach(save_button, 1, 9, 1, 1)
+        self.grid.attach(del_button, 2, 9, 1, 1)
+        self.grid.attach(close_button, 3, 9, 1, 1)
+
+        enter_label = Gtk.Label("Enter here: ")
+        self.grid.attach(enter_label, 3, 1, 1, 1)
+
+        self.entries = list()
+        for i in self.title_list:
+            if i == "age":
+                i = "20"
+            entry = Gtk.Entry()
+            entry.set_text(i)
+            self.entries.append(entry)
+
+        for i, entry in enumerate(self.entries[0:]):
+            self.grid.attach(self.entries[i], 3, 2 + i, 1, 1)
+
 
     def on_add_clicked(self, widget):
         print("add...")
+        val_list = []
+        for i in range(0, 7):
+            val = self.entries[i].get_text()
+            if i == 3:
+                val = int(val)
+            val_list.append(val)
+
+        ss = "SELECT sno FROM S;"
+        cursor.execute(ss)
+        results = cursor.fetchall()
+        flag = True
+        for row in results:
+            if row[0].upper() == val_list[0].upper():
+                dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                           Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+                dialog.format_secondary_text(
+                    "The user is exist...")
+                dialog.run()
+                dialog.destroy()
+                flag = False
+        if flag == True:
+            ss = "INSERT INTO S(sno, sname, sex, age, sdept, login, pswd) VALUES \
+                      ('%s', '%s', '%s', %d, '%s', '%s', '%s');\
+                      " % (val_list[0],val_list[1],val_list[2],val_list[3],val_list[4],val_list[5],val_list[6])
+            cursor.execute(ss)
+            self.stu_list.append(val_list[0])
+            self.counter_record_label.set_text("Record counter: %d" % len(self.stu_list))
+            self.stu_info_liststore.append(val_list)
 
     def on_save_clicked(self, widget):
         print("save...")
+        db.commit()
 
     def on_del_clicked(self, widget):
         print("delete...")
+        val = self.entries[0].get_text()
+        flag = False
+        for i in self.stu_info_liststore:
+            if i[0].upper() == val.upper():
+                val = i[0]
+                print(val)
+                self.stu_info_liststore.remove(i.iter)
+                flag = True
+                break
+        if flag == False:
+            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                    Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+            dialog.format_secondary_text(
+                "The user is not exist...")
+            dialog.run()
+            dialog.destroy()
+        else:
+            ss = "DELETE FROM Selected WHERE sno = '%s';" % val
+            cursor.execute(ss)
+            ss = "DELETE FROM SC WHERE sno = '%s';" % val
+            cursor.execute(ss)
+            ss = "DELETE FROM S WHERE sno = '%s';" % val
+            cursor.execute(ss)
+
+            for data in self.stu_list:
+                if data[0] == val:
+                    self.stu_list.remove(data)
+            self.counter_record_label.set_text("Record counter: %s" % len(self.stu_list))
 
     def on_close_clicked(self, widget):
         print("close...")
+        self.close()
 
 
 
@@ -135,7 +206,7 @@ class TeacherWindow(Gtk.Window):
         self.grid.attach(find_button, 4, 3, 1, 1)
         self.grid.attach(input_button, 4, 4, 1, 1)
         self.grid.attach(close2_button, 4, 5, 1, 1)
-        self.grid.attach(gradeDistribution_button, 4, 6, 2, 1)
+        self.grid.attach(gradeDistribution_button, 0, 4, 2, 1)
 
         # ComboBox
         cnames = [""]
@@ -191,11 +262,12 @@ class TeacherWindow(Gtk.Window):
     def on_close_clicked(self, widget):
         global database_connection_is_closed
         if database_connection_is_closed == False:
-            print("close connection...")
+            print("database: close connection...")
             db.close()
             database_connection_is_closed = True
         Gtk.main_quit()
-        print("button::%s" % database_connection_is_closed)
+
+
 
     def on_find_clicked(self, widget):
         print("find")
@@ -247,7 +319,6 @@ class TeacherWindow(Gtk.Window):
                 width  = rect.get_width()
                 text_y = rect.get_y() + rect.get_height() / 2.
                 text_x = 1.05 * width
-                print("(%f, %f)"%(text_x, text_y))
                 ax.text(text_x, text_y,
                         '%d' % int(width), ha = 'center', va = 'bottom')
 
@@ -564,7 +635,7 @@ class StudentWindow(Gtk.Window):
         global database_connection_is_closed
 
         if database_connection_is_closed == False:
-            print("close connection...")
+            print("database: close connection...")
             db.close()
             database_connection_is_closed = True
         Gtk.main_quit()
