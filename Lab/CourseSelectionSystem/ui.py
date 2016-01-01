@@ -18,8 +18,71 @@ cursor = db.cursor()
 database_connection_is_closed = False
 
 
+# Student Info UI
+class StudentInfoWindow(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self, title =  "Student Information")
+        self.set_border_width(10)
+        self.grid = Gtk.Grid()
+        self.grid.set_row_spacing(5)
+        self.grid.set_column_homogeneous(True)
+        self.grid.set_row_homogeneous(True)
+        self.add(self.grid)
 
 
+        self.stu_list = []
+        ss = "SELECT * FROM S;"
+        cursor.execute(ss)
+        results = cursor.fetchall()
+        for row in results:
+            mytuple = (row[0], row[1], row[2], int(row[3]), row[4], row[5], row[5])
+            self.stu_list.append(mytuple)
+
+        counter_record_label = Gtk.Label("Record counter: %s" % len(self.stu_list))
+        self.grid.add(counter_record_label)
+
+        self.stu_info_liststore = Gtk.ListStore(str, str, str, int, str, str, str)
+        for ref in self.stu_list:
+            self.stu_info_liststore.append(list(ref))
+#        self.current_filter_stu = None
+        self.stu_filter = self.stu_info_liststore.filter_new()
+#        self.stu_filtetr.set_visible_func(self.stu_filter_func)
+        self.treeview = Gtk.TreeView.new_with_model(self.stu_filter)
+        for i, column_title in enumerate(
+                ["id", "name","gender", "age", "college", "user", "passwd"]):
+            renderer = Gtk.CellRendererText()
+            column= Gtk.TreeViewColumn(column_title, renderer, text = i)
+            self.treeview.append_column(column)
+        self.scrollable_treelist = Gtk.ScrolledWindow()
+        self.scrollable_treelist.set_vexpand(True)
+        self.grid.attach(self.scrollable_treelist, 0, 1, 4, 8)
+        self.scrollable_treelist.add(self.treeview)
+        self.show_all()
+
+        add_button = Gtk.Button("Add")
+        add_button.connect("clicked",  self.on_add_clicked)
+        save_button = Gtk.Button("Save")
+        save_button.connect("clicked", self.on_save_clicked)
+        del_button = Gtk.Button("Del")
+        del_button.connect("clicked", self.on_del_clicked)
+        close_button = Gtk.Button("Close")
+        close_button.connect("clicked", self.on_close_clicked)
+        self.grid.attach(add_button, 4, 1, 1, 1)
+        self.grid.attach(save_button, 4, 2, 1, 1)
+        self.grid.attach(del_button, 4, 3, 1, 1)
+        self.grid.attach(close_button, 4, 4, 1, 1)
+
+    def on_add_clicked(self, widget):
+        print("add...")
+
+    def on_save_clicked(self, widget):
+        print("save...")
+
+    def on_del_clicked(self, widget):
+        print("delete...")
+
+    def on_close_clicked(self, widget):
+        print("close...")
 
 
 
@@ -115,8 +178,12 @@ class TeacherWindow(Gtk.Window):
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
 
+#        manu
+
     def on_maintenance_clicked(self, widget):
         print("clicked maintenance")
+        stuInfoWin = StudentInfoWindow()
+        stuInfoWin.show_all()
 
     def on_running_clicked(self, widget):
         print("running")
@@ -548,7 +615,7 @@ class LoginWindow(Gtk.Window):
         grid.attach(self.passwdEntry, 1, 1, 1, 1)
         grid.attach(self.check_visible, 2, 1, 1, 1)
 
-        grid.attach(self.loginButton, 0, 2, 1, 1)
+        grid.attach(self.loginButton, 1, 2, 1, 1)
         grid.attach(self.closeButton, 2, 2, 1, 1)
 
     # Login Button
