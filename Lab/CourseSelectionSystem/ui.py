@@ -115,6 +115,8 @@ class StudentInfoWindow(Gtk.Window):
             self.stu_list.append(val_list[0])
             self.counter_record_label.set_text("Record counter: %d" % len(self.stu_list))
             self.stu_info_liststore.append(val_list)
+            for i in range(0, 7):
+                self.entries[i].set_text(self.title_list[i])
 
     def on_save_clicked(self, widget):
         print("save...")
@@ -151,10 +153,154 @@ class StudentInfoWindow(Gtk.Window):
                     self.stu_list.remove(data)
             self.counter_record_label.set_text("Record counter: %s" % len(self.stu_list))
 
+            for i in range(0, 7):
+                self.entries[i].set_text(self.title_list[i])
+
     def on_close_clicked(self, widget):
         print("close...")
         self.close()
 
+
+# Class Info UI
+class ClassInfoWindow(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self, title =  "Class Information")
+        self.set_border_width(10)
+        self.grid = Gtk.Grid()
+        self.grid.set_row_spacing(5)
+        self.grid.set_column_homogeneous(True)
+        self.grid.set_row_homogeneous(True)
+        self.add(self.grid)
+
+        self.class_list = []
+        ss = "SELECT * FROM C;"
+        cursor.execute(ss)
+        results = cursor.fetchall()
+        for row in results:
+            mytuple = (row[0], row[1], int(row[2]), row[3], row[4])
+            self.class_list.append(mytuple)
+
+        self.counter_record_label = Gtk.Label("Record counter: %d" % len(self.class_list))
+        self.grid.add(self.counter_record_label)
+
+        self.class_info_liststore = Gtk.ListStore(str, str, int, str, str)
+        for ref in self.class_list:
+            self.class_info_liststore.append(list(ref))
+        self.class_filter = self.class_info_liststore.filter_new()
+        self.treeview = Gtk.TreeView.new_with_model(self.class_filter)
+        self.title_list = ["id", "name","credit", "college", "teacher"]
+        for i, column_title in enumerate(self.title_list):
+            renderer = Gtk.CellRendererText()
+            column= Gtk.TreeViewColumn(column_title, renderer, text = i)
+            self.treeview.append_column(column)
+
+        self.scrollable_treelist = Gtk.ScrolledWindow()
+        self.scrollable_treelist.set_vexpand(True)
+        self.grid.attach(self.scrollable_treelist, 0, 1, 3, 8)
+        self.scrollable_treelist.add(self.treeview)
+        self.show_all()
+
+        add_button = Gtk.Button("Add")
+        add_button.connect("clicked",  self.on_add_clicked)
+        save_button = Gtk.Button("Save")
+        save_button.connect("clicked", self.on_save_clicked)
+        del_button = Gtk.Button("Del")
+        del_button.connect("clicked", self.on_del_clicked)
+        close_button = Gtk.Button("Close")
+        close_button.connect("clicked", self.on_close_clicked)
+        self.grid.attach(add_button, 0, 9, 1, 1)
+        self.grid.attach(save_button, 1, 9, 1, 1)
+        self.grid.attach(del_button, 2, 9, 1, 1)
+        self.grid.attach(close_button, 3, 9, 1, 1)
+
+        enter_label = Gtk.Label("Enter here: ")
+        self.grid.attach(enter_label, 3, 1, 1, 1)
+
+        self.entries = list()
+        for i in self.title_list:
+            if i == "credit":
+                i = "4"
+            entry = Gtk.Entry()
+            entry.set_text(i)
+            self.entries.append(entry)
+
+        for i, entry in enumerate(self.entries[0:]):
+            self.grid.attach(self.entries[i], 3, 2 + i, 1, 1)
+
+
+    def on_add_clicked(self, widget):
+        print("add...")
+        val_list = []
+        for i in range(0, 5):
+            val = self.entries[i].get_text()
+            if i == 2:
+                val = int(val)
+            val_list.append(val)
+
+        ss = "SELECT sno FROM S;"
+        cursor.execute(ss)
+        results = cursor.fetchall()
+        flag = True
+        for row in results:
+            if row[0].upper() == val_list[0].upper():
+                dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                           Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+                dialog.format_secondary_text(
+                    "The class is exist...")
+                dialog.run()
+                dialog.destroy()
+                flag = False
+        if flag == True:
+            ss = "INSERT INTO C(cno, cname, credit, cdept, tname) VALUES \
+                      ('%s', '%s', %d, '%s', '%s');\
+                      " % (val_list[0],val_list[1],val_list[2],val_list[3],val_list[4])
+            cursor.execute(ss)
+            self.class_list.append(val_list)
+            self.counter_record_label.set_text("Record counter: %d" % len(self.class_list))
+            self.class_info_liststore.append(val_list)
+            for i in range(0, 5):
+                self.entries[i].set_text(self.title_list[i])
+
+    def on_save_clicked(self, widget):
+        print("save...")
+        db.commit()
+
+    def on_del_clicked(self, widget):
+        print("delete...")
+        val = self.entries[0].get_text()
+        flag = False
+        for i in self.class_info_liststore:
+            if i[0].upper() == val.upper():
+                val = i[0]
+                print(val)
+                self.class_info_liststore.remove(i.iter)
+                flag = True
+                break
+        if flag == False:
+            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                    Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+            dialog.format_secondary_text(
+                "The class is not exist...")
+            dialog.run()
+            dialog.destroy()
+        else:
+            ss = "DELETE FROM Selected WHERE cno = '%s';" % val
+            cursor.execute(ss)
+            ss = "DELETE FROM SC WHERE cno = '%s';" % val
+            cursor.execute(ss)
+            ss = "DELETE FROM C WHERE cno = '%s';" % val
+            cursor.execute(ss)
+
+            for data in self.class_list:
+                if data[0] == val:
+                    self.class_list.remove(data)
+            self.counter_record_label.set_text("Record counter: %s" % len(self.class_list))
+            for i in range(0, 5):
+                self.entries[i].set_text(self.title_list[i])
+
+    def on_close_clicked(self, widget):
+        print("close...")
+        self.close()
 
 
 # Teacher ui
@@ -258,6 +404,8 @@ class TeacherWindow(Gtk.Window):
 
     def on_running_clicked(self, widget):
         print("running")
+        classInfoWin = ClassInfoWindow()
+        classInfoWin.show_all()
 
     def on_close_clicked(self, widget):
         global database_connection_is_closed
