@@ -9,7 +9,6 @@ from gi.repository import Gtk, GLib
 import datetime
 # datetime.datetime.now().date() -> datetime.datetime.date(2015, 12, 31)
 
-
 # Database: connect to database::mySchool
 db = MySQLdb.connect("localhost", "root", "1", "mySchool")
 cursor = db.cursor()
@@ -18,8 +17,10 @@ cursor = db.cursor()
 database_connection_is_closed = False
 
 
-# Student Info UI
 class StudentInfoWindow(Gtk.Window):
+    """
+    Student Info UI
+    """
     def __init__(self):
         Gtk.Window.__init__(self, title =  "Student Information")
         self.set_border_width(10)
@@ -161,8 +162,10 @@ class StudentInfoWindow(Gtk.Window):
         self.close()
 
 
-# Class Info UI
-class ClassInfoWindow(Gtk.Window):
+class CourseInfoWindow(Gtk.Window):
+    """
+    Course Info UI
+    """
     def __init__(self):
         Gtk.Window.__init__(self, title =  "Class Information")
         self.set_border_width(10)
@@ -303,8 +306,11 @@ class ClassInfoWindow(Gtk.Window):
         self.close()
 
 
-# Teacher ui
 class TeacherWindow(Gtk.Window):
+    """
+    Teacher UI: Grade management
+    """
+
     def __init__(self, userName):
         Gtk.Window.__init__(self, title = "Grade Management")
         self.set_border_width(10)
@@ -316,13 +322,32 @@ class TeacherWindow(Gtk.Window):
         self.grid.set_row_homogeneous(True)
         self.add(self.grid)
 
+        """
+        choices = ["Maintentance", "StudentInfo", "CourseInfo"]
+        choices_combo = Gtk.ComboBoxText()
+        choices_combo.set_entry_text_column(0)
+        choices_combo.connect("changed", self.on_choice_combo_changed)
+        for choice in choices:
+            choices_combo.append_text(choice)
+        self.grid.add(choices_combo)
+
+
         maintenance_button = Gtk.Button(label = "Maintentance")
         maintenance_button.connect("clicked", self.on_maintenance_clicked)
+        """
+        studentInfo_button = Gtk.Button(label = "StudentInfo")
+        studentInfo_button.connect("clicked", self.on_studentInfo_clicked)
+        self.grid.add(studentInfo_button)
+        courseInfo_button = Gtk.Button(label = "CouresInfo")
+        courseInfo_button.connect("clicked", self.on_courseInfo_clicked)
+        self.grid.attach(courseInfo_button, 1, 0, 1, 1)
+
         running_button = Gtk.Button(label = "Running")
         running_button.connect("clicked", self.on_running_clicked)
+        self.grid.attach(running_button, 2, 0, 1, 1)
         close1_button = Gtk.Button(label = "Close")
         close1_button.connect("clicked", self.on_close_clicked)
-
+        self.grid.attach(close1_button, 3, 0, 1, 1)
 
         self.className_label = Gtk.Label(label = "Class: ", halign = Gtk.Align.START)
         self.teacherName_label = Gtk.Label(
@@ -332,27 +357,24 @@ class TeacherWindow(Gtk.Window):
         self.student_and_grade_label = Gtk.Label(
             label = "Students and grade in the class: ", halign = Gtk.Align.START)
 
-        find_button = Gtk.Button(label = "Find")
-        find_button.connect("clicked", self.on_find_clicked)
-        input_button = Gtk.Button(label = "Input")
-        input_button.connect("clicked", self.on_input_clicked)
-        gradeDistribution_button = Gtk.Button(label = "Grade Distribution")
-        gradeDistribution_button.connect("clicked", self.on_gradeDistribution_clicked)
-        close2_button = Gtk.Button(label = "Close")
-        close2_button.connect("clicked", self.on_close_clicked)
+        self.find_button = Gtk.Button(label = "Find")
+        self.find_button.connect("clicked", self.on_find_clicked)
+        self.input_button = Gtk.Button(label = "Input")
+        self.input_button.connect("clicked", self.on_input_clicked)
+        self.gradeDistribution_button = Gtk.Button(label = "Grade Distribution")
+        self.gradeDistribution_button.connect("clicked", self.on_gradeDistribution_clicked)
+        self.close2_button = Gtk.Button(label = "Close")
+        self.close2_button.connect("clicked", self.on_close_clicked)
 
         # Layout
-        self.grid.add(maintenance_button)
-        self.grid.attach(running_button, 1, 0, 1, 1)
-        self.grid.attach(close1_button, 2, 0, 1, 1)
         self.grid.attach(self.className_label, 0, 1, 2, 1)
         self.grid.attach(self.teacherName_label, 2, 1, 2, 1)
         self.grid.attach(self.selectClass_label, 0, 2, 2, 1)
         self.grid.attach(self.student_and_grade_label, 2, 2, 2, 1)
-        self.grid.attach(find_button, 4, 3, 1, 1)
-        self.grid.attach(input_button, 4, 4, 1, 1)
-        self.grid.attach(close2_button, 4, 5, 1, 1)
-        self.grid.attach(gradeDistribution_button, 0, 4, 2, 1)
+        self.grid.attach(self.find_button, 4, 3, 1, 1)
+        self.grid.attach(self.input_button, 4, 4, 1, 1)
+        self.grid.attach(self.close2_button, 4, 5, 1, 1)
+        self.grid.attach(self.gradeDistribution_button, 0, 4, 2, 1)
 
         # ComboBox
         cnames = [""]
@@ -395,17 +417,35 @@ class TeacherWindow(Gtk.Window):
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
 
-#        manu
+        sno_label = Gtk.Label(label = "Student id: ", halign = Gtk.Align.START)
+        self.grid.attach(sno_label, 0, 5, 1, 1)
+        grade_label = Gtk.Label(label = "Grade: ", halign = Gtk.Align.START)
+        self.grid.attach(grade_label, 0, 6, 1, 1)
+        self.sno_entry = Gtk.Entry()
+        self.sno_entry.set_sensitive(False)
+        # self.grid.attach_next_to(self.sno_entry, sno_label, Gtk.PositionType.RIGHT, 1, 1)
+        self.grid.attach(self.sno_entry, 1, 5, 1, 1)
+        self.grade_entry = Gtk.Entry()
+        self.grade_entry.set_sensitive(False)
+        self.grid.attach(self.grade_entry, 1, 6, 1, 1)
 
+    """
     def on_maintenance_clicked(self, widget):
         print("clicked maintenance")
         stuInfoWin = StudentInfoWindow()
         stuInfoWin.show_all()
+    """
+
+    def on_studentInfo_clicked(self, widget):
+        stuInfoWin = StudentInfoWindow()
+        stuInfoWin.show_all()
+
+    def on_courseInfo_clicked(self, widget):
+        courseInfoWin = CourseInfoWindow()
+        courseInfoWin.show_all()
 
     def on_running_clicked(self, widget):
         print("running")
-        classInfoWin = ClassInfoWindow()
-        classInfoWin.show_all()
 
     def on_close_clicked(self, widget):
         global database_connection_is_closed
@@ -414,8 +454,6 @@ class TeacherWindow(Gtk.Window):
             db.close()
             database_connection_is_closed = True
         Gtk.main_quit()
-
-
 
     def on_find_clicked(self, widget):
         print("find")
@@ -429,9 +467,88 @@ class TeacherWindow(Gtk.Window):
         self.cno_filter.refilter()
 
     def on_input_clicked(self, widget):
-        print("input")
+        if widget.get_label() == "Input":
+            print("input")
+            widget.set_label("Save")
+            self.find_button.set_sensitive(False)
+            self.gradeDistribution_button.set_sensitive(False)
+            self.close2_button.set_sensitive(False)
+
+            self.sno_entry.set_sensitive(True)
+            self.grade_entry.set_sensitive(True)
+
+        elif widget.get_label() == "Save":
+            print("Save...")
+            widget.set_label("Input")
+            self.find_button.set_sensitive(True)
+            self.gradeDistribution_button.set_sensitive(True)
+            self.close2_button.set_sensitive(True)
+
+            sno = self.sno_entry.get_text()
+            grade = int(self.grade_entry.get_text())
+
+            ss = "SELECT cno FROM C WHERE cname = '%s';\
+                 " % self.combo_text
+            cursor.execute(ss)
+            result = cursor.fetchone()
+            cno = result[0]
+
+            ss = "SELECT sno FROM SC WHERE cno = '%s';" % cno
+            cursor.execute(ss)
+            results = cursor.fetchall()
+            sno_list = []
+            for row in results:
+                if sno.upper() == row[0].upper():
+                    sno = row[0]
+                sno_list.append(row[0])
+
+            if sno in sno_list:
+                print("Change student: %s's grade to %s." % (sno, grade))
+
+                ss = "DELETE FROM SC WHERE sno = '%s' \
+                      AND cno = '%s';" % (sno, cno)
+                cursor.execute(ss)
+                db.commit()
+
+                sql = "INSERT INTO SC(sno, cno, grade) VALUES \
+                       ('%s', '%s', %d)" % (sno, cno, grade)
+                cursor.execute(sql)
+                db.commit()
+
+                self.sno_and_grade_liststore.clear()
+                self.sno_and_grade_list = []
+
+                ss = "SELECT cno, sno, grade FROM SC;"
+                cursor.execute(ss)
+                results = cursor.fetchall()
+                for row in results:
+                    mytuple = (row[0], row[1], int(row[2]))
+                    self.sno_and_grade_list.append(mytuple)
+
+                for ref in self.sno_and_grade_list:
+                    self.sno_and_grade_liststore.append(list(ref))
+
+            else:
+                dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                       Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+                dialog.format_secondary_text("Student id not exist...")
+                dialog.run()
+                dialog.destroy()
+
+
+            self.current_filter_cno = cno
+            self.cno_filter.refilter()
+
+            self.sno_entry.set_text("")
+            self.grade_entry.set_text("")
+            self.sno_entry.set_sensitive(False)
+            self.grade_entry.set_sensitive(False)
 
     def on_gradeDistribution_clicked(self, widget):
+        """
+        picture everyCourse avgGrade
+        """
+
         ss = "SELECT DISTINCT cno, AVG(grade) FROM SC GROUP BY cno;"
         cursor.execute(ss)
         results = cursor.fetchall()
@@ -479,6 +596,11 @@ class TeacherWindow(Gtk.Window):
             print("Selected: cname = %s" % self.combo_text)
             self.className_label.set_text("Class: %s" % self.combo_text)
 
+    def on_choice_combo_changed(self, combo):
+        self.combo_text = combo.get_active_text()
+        if self.combo_text != None:
+            print("Selected: table = %s" % self.combo_text)
+
     def cno_filter_func(self, model, iter, data):
         if self.current_filter_cno is None or self.current_filter_cno == "None":
             return True
@@ -486,9 +608,10 @@ class TeacherWindow(Gtk.Window):
             return model[iter][0] == self.current_filter_cno
 
 
-
-# Grade Record ui
 class GradeRecord(Gtk.Window):
+    """
+    Grade Record UI: show user(student) Grade Info
+    """
     def __init__(self, userName):
         Gtk.Window.__init__(self, title = "Grade Record")
         self.set_border_width(20)
@@ -547,10 +670,12 @@ class GradeRecord(Gtk.Window):
         self.grid.attach(self.average_score_label, 0, 8, 1, 2)
 
 
-# student ui
 class StudentWindow(Gtk.Window):
+    """
+    Student UI: show user(student) info, grade, selectable course
+    and do course selection
+    """
 
-    # class: __init__
     def __init__(self, userName):
         # title
         Gtk.Window.__init__(self, title = "Student Select Class System")
@@ -790,9 +915,11 @@ class StudentWindow(Gtk.Window):
         print("button::%s" % database_connection_is_closed)
 
 
-
-# login ui
 class LoginWindow(Gtk.Window):
+    """
+    Login UI: user login
+    """
+
     def __init__(self):
         # title
         Gtk.Window.__init__(self, title = "Login")
@@ -851,7 +978,7 @@ class LoginWindow(Gtk.Window):
             myTuple = (user, pswd)
             Students.append(myTuple)
 
-        # teachers group
+        # teachers group, 0:0 is test user
         Teachers = [("0", "0")]
         sql = "SELECT DISTINCT * FROM C;"
         cursor.execute(sql)
@@ -906,9 +1033,9 @@ class LoginWindow(Gtk.Window):
 
 if __name__ == '__main__':
     try:
-        win = LoginWindow()
-        win.connect("delete-event", Gtk.main_quit)
-        win.show_all()
+        loginWin = LoginWindow()
+        loginWin.connect("delete-event", Gtk.main_quit)
+        loginWin.show_all()
         Gtk.main()
     except e:
         print(e)
