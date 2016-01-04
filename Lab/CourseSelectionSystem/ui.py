@@ -485,59 +485,69 @@ class TeacherWindow(Gtk.Window):
             self.close2_button.set_sensitive(True)
 
             sno = self.sno_entry.get_text()
-            grade = int(self.grade_entry.get_text())
+            if sno != "":
+                grade = int(self.grade_entry.get_text())
+            else:
+                grade = 0
 
             ss = "SELECT cno FROM C WHERE cname = '%s';\
                  " % self.combo_text
             cursor.execute(ss)
             result = cursor.fetchone()
-            cno = result[0]
-
-            ss = "SELECT sno FROM SC WHERE cno = '%s';" % cno
-            cursor.execute(ss)
-            results = cursor.fetchall()
-            sno_list = []
-            for row in results:
-                if sno.upper() == row[0].upper():
-                    sno = row[0]
-                sno_list.append(row[0])
-
-            if sno in sno_list:
-                print("Change student: %s's grade to %s." % (sno, grade))
-
-                ss = "DELETE FROM SC WHERE sno = '%s' \
-                      AND cno = '%s';" % (sno, cno)
-                cursor.execute(ss)
-                db.commit()
-
-                sql = "INSERT INTO SC(sno, cno, grade) VALUES \
-                       ('%s', '%s', %d)" % (sno, cno, grade)
-                cursor.execute(sql)
-                db.commit()
-
-                self.sno_and_grade_liststore.clear()
-                self.sno_and_grade_list = []
-
-                ss = "SELECT cno, sno, grade FROM SC;"
+            if result is not None:
+                cno = result[0]
+                ss = "SELECT sno FROM SC WHERE cno = '%s';" % cno
                 cursor.execute(ss)
                 results = cursor.fetchall()
+                sno_list = []
                 for row in results:
-                    mytuple = (row[0], row[1], int(row[2]))
-                    self.sno_and_grade_list.append(mytuple)
+                    if sno.upper() == row[0].upper():
+                        sno = row[0]
+                    sno_list.append(row[0])
 
-                for ref in self.sno_and_grade_list:
-                    self.sno_and_grade_liststore.append(list(ref))
+                if sno in sno_list:
+                    print("Change student: %s's grade to %s." % (sno, grade))
+
+                    ss = "DELETE FROM SC WHERE sno = '%s' \
+                          AND cno = '%s';" % (sno, cno)
+                    cursor.execute(ss)
+                    db.commit()
+
+                    sql = "INSERT INTO SC(sno, cno, grade) VALUES \
+                           ('%s', '%s', %d)" % (sno, cno, grade)
+                    cursor.execute(sql)
+                    db.commit()
+
+                    self.sno_and_grade_liststore.clear()
+                    self.sno_and_grade_list = []
+
+                    ss = "SELECT cno, sno, grade FROM SC;"
+                    cursor.execute(ss)
+                    results = cursor.fetchall()
+                    for row in results:
+                        mytuple = (row[0], row[1], int(row[2]))
+                        self.sno_and_grade_list.append(mytuple)
+
+                    for ref in self.sno_and_grade_list:
+                        self.sno_and_grade_liststore.append(list(ref))
+
+                else:
+                    print("Cannot save null...")
+                    dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                          Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+                    dialog.format_secondary_text("Student id not exist...")
+                    dialog.run()
+                    dialog.destroy()
+                    self.current_filter_cno = cno
+                    self.cno_filter.refilter()
+
 
             else:
                 dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                                       Gtk.ButtonsType.OK, "This is an Error MessageDialog")
-                dialog.format_secondary_text("Student id not exist...")
+                                           Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+                dialog.format_secondary_text("Cannot save null...")
                 dialog.run()
                 dialog.destroy()
-
-
-            self.current_filter_cno = cno
-            self.cno_filter.refilter()
 
             self.sno_entry.set_text("")
             self.grade_entry.set_text("")
@@ -900,8 +910,18 @@ class StudentWindow(Gtk.Window):
         db.commit()
 
         self.current_filter_cnoList = list(set(self.current_filter_cnoList))
-        self.current_filter_cnoList.remove('%s' % cno)
-        self.selected_filter.refilter()
+        print(self.current_filter_cnoList)
+
+        if  cno in self.current_filter_cnoList:
+            self.current_filter_cnoList.remove('%s' % cno)
+            self.selected_filter.refilter()
+        else:
+            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                       Gtk.ButtonsType.OK, "This is an Error MessageDialog")
+            dialog.format_secondary_text("Cannot drop a not exist class...")
+            dialog.run()
+            dialog.destroy()
+
 
     def on_close_clicked(self, widget):
         print("Goodby...")
