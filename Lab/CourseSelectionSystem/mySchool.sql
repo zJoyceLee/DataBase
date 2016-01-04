@@ -7,10 +7,10 @@ USE mySchool;
 CREATE TABLE S(
     sno CHAR(4),
     sname CHAR(20),
-    sex CHAR(2),
+    sex VARCHAR(10),
     age CHAR(2),
     sdept CHAR(20),
-    logn CHAR(20),
+    login CHAR(20),
     pswd CHAR(20),
     PRIMARY KEY(sno)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;;
@@ -45,7 +45,7 @@ CREATE TABLE Selected(
     FOREIGN KEY(cno) REFERENCES C(cno)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-INSERT INTO S(sno, sname, sex, age, sdept, logn, pswd) VALUES
+INSERT INTO S(sno, sname, sex, age, sdept, login, pswd) VALUES
 ("S1", "LiMing", "M", "19", "Computer Software", "S1", "001"),
 ("S2", "LiuXiaoming", "M", "20", "Computer Application", "S2", "002"),
 ("S3", "LiMing", "M", "22", "Computer Application", "S3", "003"),
