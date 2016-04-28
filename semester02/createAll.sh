@@ -7,7 +7,7 @@ mysql -u root -p1 < ./courseSelection.sql
 echo "Insert data now ..."
 # insert into Colleges, Students, Teachers, Courses
 echo "This spend time totle: "
-timp python ./insert.py
+time python ./insert.py
 
 echo "Create View now ..."
 # createView: S, T, C
