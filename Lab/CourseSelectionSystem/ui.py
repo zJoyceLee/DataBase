@@ -1017,9 +1017,8 @@ class LoginWindow(Gtk.Window):
             userName = userName.upper()
             stuWin = StudentWindow(userName)
             stuWin.show_all()
-#             self.hide()
 
-            # studentSuccessfulLogin(userName)
+        # studentSuccessfulLogin(userName)
         # teacher login
         elif (userName, passwd) in Teachers:
             print("Teacher login successful")
